@@ -32,12 +32,19 @@ sub parse_dram_data
 				print("ERROR: unknown ddr type\n");
 				return 1;
 			}
+		} elsif ($name =~ m/CAP/) {
+			$cap_size = $cap_size + $value;
 		}
 	}
 
 	close($file);
 
 	unlink("${path}/ddr_static.txt");
+
+	if (-e "${path}/${ddr_type}-${ddr_clk}-${cs_num}CS-${cap_size}.txt") {
+		copy("${path}/${ddr_type}-${ddr_clk}-${cs_num}CS-${cap_size}.txt", "${path}/ddr_static.txt");
+		return 0;
+	}
 
 	unless (-e "${path}/${ddr_type}-${ddr_clk}-${cs_num}CS.txt") {
 		print("ERROR: unsupported ddr topology\n");
@@ -70,6 +77,7 @@ use Cwd 'abs_path';
 use vars qw($opt_i $opt_c $opt_h);
 
 our $cs_num = 0;
+our $cap_size = 0;
 
 getopt('i:c:h');
 
